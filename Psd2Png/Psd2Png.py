@@ -57,14 +57,20 @@ def main():
             if newFile=="":
                 newFile="layer"+str(count)
             image=layer.topil()
+            bg=Image.new("RGBA",[psd.width,psd.height],(0,0,0,0))
+            bg.paste(image,layer.offset)
+
+            if os.path.isfile(os.path.join(newDirPath,*parentDirs,newFile+".png")):
+                tempFile=newFile+"_"+str(count)
+                while os.path.isfile(os.path.join(newDirPath,*parentDirs,tempFile+".png")):
+                    tempFile+="_"
+                newFile=tempFile
             try:
-                image.save(os.path.join(newDirPath,*parentDirs,newFile+".png"))
+                bg.save(os.path.join(newDirPath,*parentDirs,newFile+".png"))
                 print("レイヤー名："+layer.name+"を"+os.path.join(newDirPath,*parentDirs,newFile+".png")+"に保存しました")
             except:
                 print("レイヤー名："+layer.name+"の保存に失敗しました")
             count+=1
-
-
 
 
 if __name__=="__main__":
