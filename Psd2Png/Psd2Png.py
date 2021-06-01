@@ -43,16 +43,26 @@ def main():
     badFileNameReg=re.compile('[\\/:*?"<>|]+')
     count=0
     for layer in list(psd.descendants()):
-        newFile=re.sub(badFileNameReg,"",layer.name)
-        if newFile=="":
-            newFile="layer"+str(count)
-        image=layer.topil()
-        try:
-            image.save(os.path.join(newDirPath,newFile+".png"))
-            print("レイヤー名："+layer.name+"を"+os.path.join(newDirPath,newFile+".png")+"に保存しました")
-        except:
-            print("レイヤー名："+layer.name+"の保存に失敗しました")
-        count+=1
+        if not layer.is_group():
+            parentDirs=[]
+            newFile=re.sub(badFileNameReg,"",layer.name)
+            parent=layer.parent
+            while "layers.Group" in str(type(parent)):
+                parentDirs.append(parent.name)
+                parent=parent.parent
+            print (parentDirs)
+            if len(parentDirs)!=0 and not os.path.isdir(os.path.join(newDirPath,*parentDirs)):
+                os.makedirs(os.path.join(newDirPath,*parentDirs))
+
+            if newFile=="":
+                newFile="layer"+str(count)
+            image=layer.topil()
+            try:
+                image.save(os.path.join(newDirPath,*parentDirs,newFile+".png"))
+                print("レイヤー名："+layer.name+"を"+os.path.join(newDirPath,*parentDirs,newFile+".png")+"に保存しました")
+            except:
+                print("レイヤー名："+layer.name+"の保存に失敗しました")
+            count+=1
 
 
 
