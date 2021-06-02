@@ -41,6 +41,7 @@
     <Content Include="dist\readme.txt" />
     <Content Include="media\test.psd" />
     <Content Include="media\test2.psd" />
+    <Content Include="requirements.txt" />
     <Content Include="__pycache__\Psd2Png.cpython-38.pyc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
