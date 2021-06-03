@@ -16,7 +16,11 @@ class Psd2Png:
     __defaultLayerName="layer"
     __paddingChar="_"
 
-    def __init__(self,psdPath,outputDir=""):
+    def __init__(self,psdPath,logger=None,outputDir=""):
+        if logger is None:
+            self.__logger=logging.getLogger("PSD2Png")
+        else:
+            self.__logger=logger
         self.__layerCount=0
         self.__layers=[]
         self.__outputPaths=[]
@@ -25,105 +29,128 @@ class Psd2Png:
         self.__CheckOutputDir(psdPath,outputDir)
         self.__CheckLength()
 
+    @property
+    def outputPaths(self):
+        return self.__outputPaths
 
     def __IsInputPathAsFile(self,psdPath):
         if not os.path.isfile(psdPath):
-            logging.error ("指定されたファイルが見つかりません\n"+psdPath)
+            self.__logger.error ("指定されたファイルが見つかりません\n"+psdPath)
             raise FileNotFoundError("指定されたファイルが見つかりません\n"+psdPath)
-        logging.debug ("OK:"+psdPath)
+        self.__logger.debug ("OK:"+psdPath)
 
     def __CheckFileFormat(self,psdPath):
-        logging.debug ("ファイルがpsdか確認")
+        self.__logger.debug ("ファイルがpsdか確認")
         try:
             self.__psd=PSDImage.open(psdPath,encoding="cp932")
         except:
-            logging.error ("指定されたファイルはpsdではありません\n"+psdPath)
+            self.__logger.error ("指定されたファイルはpsdではありません\n"+psdPath)
             raise OSError(400,"指定されたファイルはpsdではありません",psdPath)
-        logging.debug ("ファイルがpsdか確認OK")
+        self.__logger.debug ("ファイルがpsdか確認OK")
 
     def __CheckOutputDir(self,psdPath,outputDir):
-        logging.debug ("保存先フォルダ確認")
+        self.__logger.debug ("保存先フォルダ確認")
         if outputDir=="":
             outputDir=psdPath.split(".")[0]
-            logging.info("outputDirが指定されていないため、"+outputDir+"としました")
+            self.__logger.info("outputDirが指定されていないため、"+outputDir+"としました")
 
         if os.path.isdir(outputDir):
-            logging.debug(outputDir +"はすでに存在します")
+            self.__logger.debug(outputDir +"はすでに存在します")
             updateAlert=messagebox.askquestion("上書きの確認",outputDir +"はすでに存在しますが、上書きしますか?")
             if updateAlert=="yes":
-                logging.debug("既存のファイル削除")
+                self.__logger.debug("既存のファイル削除")
                 shutil.rmtree(outputDir)
-                logging.debug ("既存のファイル削除OK")
+                self.__logger.debug ("既存のファイル削除OK")
             else:
-                logging.debug("ファイルの上書きがキャンセルされました")
+                self.__logger.debug("ファイルの上書きがキャンセルされました")
                 raise FileExistsError("ファイルの上書きがキャンセルされました")
-        logging.debug ("出力フォルダの生成")
+        self.__logger.debug ("出力フォルダの生成")
         os.makedirs(outputDir)
         self.__outputDir=outputDir
-        logging.debug ("出力フォルダの生成OK")
+        self.__logger.debug ("出力フォルダの生成OK")
 
     def __CheckLength(self):
-        logging.debug ("レイヤー数の取得")
+        self.__logger.debug ("レイヤー数の取得")
+        if (len(list(self.__psd.descendants()))==0):
+            return
+
         for layer in list(self.__psd.descendants()):
             if layer.is_group():
                 continue
             self.__layers.append(layer)
-        logging.debug ("取得OK:"+str(len(self.__layers)))
+        self.__logger.debug ("取得OK:"+str(len(self.__layers)))
 
 
     def OutputPng(self):
-        logging.debug ("pngファイルの書き出し")
-        logging.debug ("出力リストの確認")
-        if len(self.__layers)!=len(self.__outputPaths):
-            logging.info ("レイヤー数と出力リストが一致しないため再取得します。")
+        self.__logger.debug ("pngファイルの書き出し")
+        self.__logger.debug ("出力リストの確認")
+        if len(self.__layers)==0 and len(self.__outputPaths)!=1:
             self.SetOutputPaths()
+            self.__outputPaths.append(os.path.join(self.__outputDir,os.path.split(self.__outputDir)[1]))
+        elif len(self.__layers)!=len(self.__outputPaths):
+            self.__logger.info ("レイヤー数と出力リストが一致しないため再取得します。")
+            self.SetOutputPaths()
+
+        if len(self.__layers)==0:
+            outputImage=self.__psd.composite()
+            try:
+                outputImage.save(self.__outputPaths[0]+".png")
+                self.__logger.info(self.__outputPaths[0]+".pngに保存しました")
+            except:
+                self.__logger.error(self.__outputPaths[0]+".png)の保存に失敗しました")
+            return
+
         for layer,output in zip(self.__layers,self.__outputPaths):
             outputImage=self.__ApplyLayerOffset(layer)
             outputDir=os.path.split(output)[0]
             if not os.path.isdir(outputDir):
-                logging.debug (outputDir+"が存在しないため生成")
+                self.__logger.debug (outputDir+"が存在しないため生成")
                 try:
                     os.makedirs(outputDir)
                 except:
-                    logging.error("フォルダの生成に失敗しました:"+outputDir)
+                    self.__logger.error("フォルダの生成に失敗しました:"+outputDir)
             try:
                 outputImage.save(output+".png")
-                logging.info("レイヤー名："+layer.name+"を"+output+".pngに保存しました")
+                self.__logger.info("レイヤー名："+layer.name+"を"+output+".pngに保存しました")
             except:
-                logging.error("レイヤー名："+layer.name+"("+output+".png)の保存に失敗しました")
+                self.__logger.error("レイヤー名："+layer.name+"("+output+".png)の保存に失敗しました")
 
     def SetOutputPaths(self):
-        logging.debug ("レイヤー名の抽出")
+        self.__logger.debug ("レイヤー名の抽出")
+        if len(self.__layers)==0:
+            self.__outputPaths.append(os.path.join(self.__outputDir,os.path.split(self.__outputDir)[1]))
+            return
+
         for layer in self.__layers:
             parentDirs=self.__GetParentDirs(layer)
             outputFileName=self.__LayerNameSanitize(layer)
             self.__SetOutputPath(parentDirs,outputFileName)
-        logging.debug ("レイヤー名の抽出OK")
+        self.__logger.debug ("レイヤー名の抽出OK")
 
     def __GetParentDirs(self,layer):
-        logging.debug (layer.name+"のレイヤーグループ確認")
+        self.__logger.debug (layer.name+"のレイヤーグループ確認")
         parentDirs=[]
         parent=layer.parent
         while "layers.Group" in str(type(parent)):
             parentDirs.append(self.__LayerNameSanitize(parent))
             parent=parent.parent
-        logging.debug (layer.name+"のレイヤーグループ取得完了"+str(parentDirs))
+        self.__logger.debug (layer.name+"のレイヤーグループ取得完了"+str(parentDirs))
         return parentDirs
 
     def __LayerNameSanitize(self,layer):
-        logging.debug (layer.name+"のうち、ファイル名に使えない文字の除去")
+        self.__logger.debug (layer.name+"のうち、ファイル名に使えない文字の除去")
         newName=re.sub(self.__layerNameSanitizeReg,"",layer.name)
         if newName=="":
             newName=self.__defaultLayerName+str(self.__layerCount)
             self.__layerCount+=1
-            logging.debug (layer.name+"が0文字になったため、"+newName+"としました")
+            self.__logger.debug (layer.name+"が0文字になったため、"+newName+"としました")
         return newName
 
     def __SetOutputPath(self,parentDirs,outputFileName):
         tempPath=os.path.join(self.__outputDir,*parentDirs,outputFileName)
         while tempPath in self.__outputPaths:
             tempPath+=self.__paddingChar
-        logging.debug ("書き出しファイル名リストに"+outputFileName+"を"+tempPath+"としてセット")
+        self.__logger.debug ("書き出しファイル名リストに"+outputFileName+"を"+tempPath+"としてセット")
         self.__outputPaths.append(tempPath)
 
     def __ApplyLayerOffset(self,layer):
