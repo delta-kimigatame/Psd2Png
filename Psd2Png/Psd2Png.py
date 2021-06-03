@@ -139,7 +139,7 @@ class Psd2Png:
 
     def __LayerNameSanitize(self,layer):
         self.__logger.debug (layer.name+"のうち、ファイル名に使えない文字の除去")
-        newName=re.sub(self.__layerNameSanitizeReg,"",layer.name)
+        newName=re.sub(self.__layerNameSanitizeReg,"",layer.name).replace("\\","")
         if newName=="":
             newName=self.__defaultLayerName+str(self.__layerCount)
             self.__layerCount+=1
