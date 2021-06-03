@@ -15,6 +15,8 @@ class Psd2Png:
     __layerNameSanitizeReg=re.compile('[\\/:*?"<>|]+')
     __defaultLayerName="layer"
     __paddingChar="_"
+    __updateAlert=False
+    __forceOveride=True
 
     def __init__(self,psdPath,logger=None,outputDir=""):
         if logger is None:
@@ -32,6 +34,27 @@ class Psd2Png:
     @property
     def outputPaths(self):
         return self.__outputPaths
+
+    @outputPaths.setter
+    def outputPaths(self,values):
+        if type(values)==list:
+            self.__outputPaths=values
+            
+    @property
+    def updateAlert(self):
+        return self.__updateAlert
+
+    @updateAlert.setter
+    def updateAlert(self,value):
+        self.__updateAlert=bool(value)
+
+    @property
+    def forceOveride(self):
+        return self.__forceOveride
+
+    @forceOveride.setter
+    def forceOveride(self,value):
+        self.__forceOveride=bool(value)
 
     def __IsInputPathAsFile(self,psdPath):
         if not os.path.isfile(psdPath):
@@ -78,9 +101,10 @@ class Psd2Png:
             self.__logger.info ("レイヤー数と出力リストが一致しないため再取得します。")
             self.SetOutputPaths()
 
-        self.__MakeOutputDir()
+        self.__MakeOutputDir(self.__outputDir)
         if len(self.__layers)==0:
             outputImage=self.__psd.composite()
+            self.__MakeOutputDir(os.path.split(self.__outputPaths[0])[0],True)
             try:
                 outputImage.save(self.__outputPaths[0]+".png")
                 self.__logger.info(self.__outputPaths[0]+".pngに保存しました")
@@ -90,13 +114,7 @@ class Psd2Png:
 
         for layer,output in zip(self.__layers,self.__outputPaths):
             outputImage=self.__ApplyLayerOffset(layer)
-            outputDir=os.path.split(output)[0]
-            if not os.path.isdir(outputDir):
-                self.__logger.debug (outputDir+"が存在しないため生成")
-                try:
-                    os.makedirs(outputDir)
-                except:
-                    self.__logger.error("フォルダの生成に失敗しました:"+outputDir)
+            self.__MakeOutputDir(os.path.split(output)[0],True)
             try:
                 outputImage.save(output+".png")
                 self.__logger.info("レイヤー名："+layer.name+"を"+output+".pngに保存しました")
@@ -147,20 +165,26 @@ class Psd2Png:
         bgi.paste(image,layer.offset)
         return bgi
 
-    def __MakeOutputDir(self):
-        if os.path.isdir(self.__outputDir):
-            self.__logger.debug(self.__outputDir +"はすでに存在します")
-            updateAlert=messagebox.askquestion("上書きの確認",self.__outputDir +"はすでに存在しますが、上書きしますか?")
-            if updateAlert=="yes":
+    def __MakeOutputDir(self,output,marge=False):
+        if os.path.isdir(output) and not marge:
+            self.__logger.debug(output +"はすでに存在します")
+            if self.__forceOveride:
                 self.__logger.debug("既存のファイル削除")
-                shutil.rmtree(self.__outputDir)
+                shutil.rmtree(output)
                 self.__logger.debug ("既存のファイル削除OK")
-            else:
-                self.__logger.debug("ファイルの上書きがキャンセルされました")
-                raise FileExistsError("ファイルの上書きがキャンセルされました")
-        self.__logger.debug ("出力フォルダの生成")
-        os.makedirs(self.__outputDir)
-        self.__logger.debug ("出力フォルダの生成OK")
+            elif self.__updateAlert:
+                updateAlert=messagebox.askquestion("上書きの確認",output +"はすでに存在しますが、上書きしますか?")
+                if updateAlert=="yes":
+                    self.__logger.debug("既存のファイル削除")
+                    shutil.rmtree(output)
+                    self.__logger.debug ("既存のファイル削除OK")
+                else:
+                    self.__logger.debug("ファイルの上書きがキャンセルされました")
+                    raise FileExistsError("ファイルの上書きがキャンセルされました")
+        elif not os.path.isdir(output):
+            self.__logger.debug ("出力フォルダの生成")
+            os.makedirs(output)
+            self.__logger.debug ("出力フォルダの生成OK")
 
 
 if __name__=="__main__":
