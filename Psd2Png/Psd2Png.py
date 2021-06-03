@@ -8,6 +8,8 @@ from tkinter import messagebox
 from PIL import Image
 from psd_tools import PSDImage
 
+#debug用
+#import tests.MakeTestData
 
 class Psd2Png:
     __layerNameSanitizeReg=re.compile('[\\/:*?"<>|]+')
@@ -33,7 +35,7 @@ class Psd2Png:
     def __CheckFileFormat(self,psdPath):
         logging.debug ("ファイルがpsdか確認")
         try:
-            self.__psd=PSDImage.open(psdPath)
+            self.__psd=PSDImage.open(psdPath,encoding="cp932")
         except:
             logging.error ("指定されたファイルはpsdではありません\n"+psdPath)
             raise OSError(400,"指定されたファイルはpsdではありません",psdPath)

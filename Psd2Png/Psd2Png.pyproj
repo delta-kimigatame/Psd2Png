@@ -13,7 +13,7 @@
     <RootNamespace>Psd2Png</RootNamespace>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>G:\VSworkspace\Psd2Png\Psd2Png\media\test2.psd</CommandLineArguments>
+    <CommandLineArguments>G:\VSworkspace\Psd2Png\Psd2Png\media\test.psd</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>none</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
@@ -29,11 +29,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Psd2Png.py" />
+    <Compile Include="tests\MakeTestData.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dist\" />
     <Folder Include="env\" />
     <Folder Include="media\" />
+    <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
