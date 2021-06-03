@@ -53,21 +53,8 @@ class Psd2Png:
         if outputDir=="":
             outputDir=psdPath.split(".")[0]
             self.__logger.info("outputDirが指定されていないため、"+outputDir+"としました")
-
-        if os.path.isdir(outputDir):
-            self.__logger.debug(outputDir +"はすでに存在します")
-            updateAlert=messagebox.askquestion("上書きの確認",outputDir +"はすでに存在しますが、上書きしますか?")
-            if updateAlert=="yes":
-                self.__logger.debug("既存のファイル削除")
-                shutil.rmtree(outputDir)
-                self.__logger.debug ("既存のファイル削除OK")
-            else:
-                self.__logger.debug("ファイルの上書きがキャンセルされました")
-                raise FileExistsError("ファイルの上書きがキャンセルされました")
-        self.__logger.debug ("出力フォルダの生成")
-        os.makedirs(outputDir)
         self.__outputDir=outputDir
-        self.__logger.debug ("出力フォルダの生成OK")
+
 
     def __CheckLength(self):
         self.__logger.debug ("レイヤー数の取得")
@@ -91,6 +78,7 @@ class Psd2Png:
             self.__logger.info ("レイヤー数と出力リストが一致しないため再取得します。")
             self.SetOutputPaths()
 
+        self.__MakeOutputDir()
         if len(self.__layers)==0:
             outputImage=self.__psd.composite()
             try:
@@ -158,6 +146,22 @@ class Psd2Png:
         bgi=Image.new("RGBA",[self.__psd.width,self.__psd.height],(0,0,0,0))
         bgi.paste(image,layer.offset)
         return bgi
+
+    def __MakeOutputDir(self):
+        if os.path.isdir(self.__outputDir):
+            self.__logger.debug(self.__outputDir +"はすでに存在します")
+            updateAlert=messagebox.askquestion("上書きの確認",self.__outputDir +"はすでに存在しますが、上書きしますか?")
+            if updateAlert=="yes":
+                self.__logger.debug("既存のファイル削除")
+                shutil.rmtree(self.__outputDir)
+                self.__logger.debug ("既存のファイル削除OK")
+            else:
+                self.__logger.debug("ファイルの上書きがキャンセルされました")
+                raise FileExistsError("ファイルの上書きがキャンセルされました")
+        self.__logger.debug ("出力フォルダの生成")
+        os.makedirs(self.__outputDir)
+        self.__logger.debug ("出力フォルダの生成OK")
+
 
 if __name__=="__main__":
     logging.basicConfig(level=logging.DEBUG)

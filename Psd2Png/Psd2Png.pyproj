@@ -13,9 +13,9 @@
     <RootNamespace>Psd2Png</RootNamespace>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>G:\VSworkspace\Psd2Png\Psd2Png\media\test.psd</CommandLineArguments>
+    <CommandLineArguments>G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\LayernameIsNone.psd</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
-    <TestFramework>none</TestFramework>
+    <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
     <UnitTestRootDirectory>.</UnitTestRootDirectory>
   </PropertyGroup>
@@ -29,7 +29,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Psd2Png.py" />
-    <Compile Include="tests\MakeTestData.py">
+    <Compile Include="tests\test_psd2png.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\__init__.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -38,6 +41,7 @@
     <Folder Include="env\" />
     <Folder Include="media\" />
     <Folder Include="tests\" />
+    <Folder Include="tests\testPsd\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
@@ -46,6 +50,15 @@
     <Content Include="media\test.psd" />
     <Content Include="media\test2.psd" />
     <Content Include="requirements.txt" />
+    <Content Include="tests\testPsd\BadLayerName.psd" />
+    <Content Include="tests\testPsd\Group.psd" />
+    <Content Include="tests\testPsd\LayerNamecp932.psd" />
+    <Content Include="tests\testPsd\LayerNameDuplication.psd" />
+    <Content Include="tests\testPsd\LayerNameIsNone.psd" />
+    <Content Include="tests\testPsd\LayerNameUtf8.psd" />
+    <Content Include="tests\testPsd\offset.psd" />
+    <Content Include="tests\testPsd\PngFile.psd" />
+    <Content Include="tests\testPsd\SimpleMultiLayer.psd" />
     <Content Include="__pycache__\Psd2Png.cpython-38.pyc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
