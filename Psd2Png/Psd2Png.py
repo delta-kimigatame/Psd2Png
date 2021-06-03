@@ -120,7 +120,7 @@ class Psd2Png:
         parentDirs=[]
         parent=layer.parent
         while "layers.Group" in str(type(parent)):
-            parentDirs.append(self.__LayerNameSanitize(parent))
+            parentDirs=[self.__LayerNameSanitize(parent)]+parentDirs
             parent=parent.parent
         self.__logger.debug (layer.name+"のレイヤーグループ取得完了"+str(parentDirs))
         return parentDirs
