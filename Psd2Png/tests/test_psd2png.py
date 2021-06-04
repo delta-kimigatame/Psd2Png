@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import MagicMock
 
 import shutil
 import glob
@@ -23,13 +24,13 @@ class TestInputError(TestPsd2PngBase):
         with self.assertLogs("TEST",level=logging.ERROR) as cm:
             with self.assertRaises(FileNotFoundError):
                 Psd2Png(os.path.join("tests","testPsd","NotExist.psd"),self.logger)
-        self.assertIn("ERROR:TEST:指定されたファイルが見つかりません",str(cm))
+        self.assertIn("ERROR:TEST:指定されたファイルが見つかりません\n"+os.path.join("tests","testPsd","NotExist.psd"),cm.output)
             
     def test_FileIsNotPsd(self):
         with self.assertLogs("TEST",level=logging.ERROR) as cm:
             with self.assertRaises(OSError):
                 Psd2Png(os.path.join("tests","testPsd","PngFile.psd"),self.logger)
-        self.assertIn("ERROR:TEST:指定されたファイルはpsdではありません",str(cm))
+        self.assertIn("ERROR:TEST:指定されたファイルはpsdではありません\n"+os.path.join("tests","testPsd","PngFile.psd"),cm.output)
 
 class TestMakeOutputPaths(TestPsd2PngBase):
     def testSimpleMultiLayer(self):
@@ -180,3 +181,61 @@ class TestOutputPng(TestPsd2PngBase):
         im=Image.open(os.path.join("tests","testPsd","override","test1.png"))
         self.assertEqual(im.getpixel((0,0)),(255,0,0))
         im.close()
+
+class TestOverideDir(TestPsd2PngBase):
+    def setUp(self):
+        super().setUp()
+        p2p=Psd2Png(os.path.join("tests","testPsd","LayerNameIsNone.psd"),self.logger)
+        p2p.OutputPng()
+        self.assertTrue(os.path.isfile(os.path.join("tests","testPsd","LayerNameIsNone","LayerNameIsNone.png")))
+        im=Image.open(os.path.join("tests","testPsd","LayerNameIsNone","LayerNameIsNone.png"))
+        self.assertEqual(im.getpixel((0,0)),(255,0,0))
+        im.close()
+
+    def testForceOveride(self):
+        p2p=Psd2Png(os.path.join("tests","testPsd","LayerNameIsNone.psd"),self.logger)
+        p2p.OutputPng()
+        self.assertTrue(os.path.isfile(os.path.join("tests","testPsd","LayerNameIsNone","LayerNameIsNone.png")))
+        im=Image.open(os.path.join("tests","testPsd","LayerNameIsNone","LayerNameIsNone.png"))
+        self.assertEqual(im.getpixel((0,0)),(255,0,0))
+        im.close()
+
+    def testDontOveride(self):
+        p2p=Psd2Png(os.path.join("tests","testPsd","LayerNameIsNone.psd"),self.logger)
+        p2p.forceOveride=False
+        with self.assertLogs("TEST",level=logging.ERROR) as cm:
+            with self.assertRaises(FileExistsError):
+                p2p.OutputPng()
+        self.assertIn("ERROR:TEST:既にファイルが存在するため、出力を中断しました",cm.output)
+        
+    def testOverideAlertYes(self):
+        p2p=Psd2Png(os.path.join("tests","testPsd","LayerNameIsNone.psd"),self.logger)
+        p2p.ShowUpdateAlert=MagicMock(return_value="yes")
+        p2p.forceOveride=False
+        p2p.updateAlert=True
+        p2p.OutputPng()
+        p2p.ShowUpdateAlert.assert_called()
+        self.assertTrue(os.path.isfile(os.path.join("tests","testPsd","LayerNameIsNone","LayerNameIsNone.png")))
+        im=Image.open(os.path.join("tests","testPsd","LayerNameIsNone","LayerNameIsNone.png"))
+        self.assertEqual(im.getpixel((0,0)),(255,0,0))
+        im.close()
+        
+        
+    def testOverideAlertNo(self):
+        p2p=Psd2Png(os.path.join("tests","testPsd","LayerNameIsNone.psd"),self.logger)
+        p2p.ShowUpdateAlert=MagicMock(return_value="no")
+        p2p.forceOveride=False
+        p2p.updateAlert=True
+        with self.assertLogs("TEST",level=logging.ERROR) as cm:
+            with self.assertRaises(FileExistsError):
+                p2p.OutputPng()
+        p2p.ShowUpdateAlert.assert_called()
+        self.assertIn("ERROR:TEST:ファイルの上書きがキャンセルされました",cm.output)
+        
+    def testPermissionError(self):
+        p2p=Psd2Png(os.path.join("tests","testPsd","LayerNameIsNone.psd"),self.logger)
+        fw=open(os.path.join("tests","testPsd","LayerNameIsNone","test"),"w")
+        with self.assertLogs("TEST",level=logging.ERROR) as cm:
+            with self.assertRaises(PermissionError):
+                p2p.OutputPng()
+        self.assertIn("ERROR:TEST:"+os.path.join("tests","testPsd","LayerNameIsNone")+"はほかのプロセスで使用中のため、削除できませんでした",cm.output)
