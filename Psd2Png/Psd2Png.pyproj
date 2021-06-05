@@ -36,6 +36,9 @@
     <Compile Include="tests\test_command.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\test_command_python.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\test_psd2png.py">
       <SubType>Code</SubType>
     </Compile>
