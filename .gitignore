@@ -343,3 +343,5 @@ healthchecksdb
 /Psd2Png/tests/testPsd/override
 /Psd2Png/tests/testPsd/LayernameIsNone
 /Psd2Png/outtest
+/Psd2Png/env1
+/Psd2Png/tests/testPsd/SimpleMultiLayer

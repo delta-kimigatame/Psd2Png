@@ -18,6 +18,7 @@
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
     <UnitTestRootDirectory>.</UnitTestRootDirectory>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +30,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Psd2Png.py" />
+    <Compile Include="setup.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\test_command.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\test_psd2png.py">
       <SubType>Code</SubType>
     </Compile>
@@ -38,14 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="dist\" />
-    <Folder Include="env\" />
     <Folder Include="media\" />
     <Folder Include="tests\" />
     <Folder Include="tests\testPsd\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
-    <Content Include="dist\Psd2Png.exe" />
     <Content Include="dist\readme.txt" />
     <Content Include="media\test.psd" />
     <Content Include="media\test2.psd" />
@@ -59,7 +64,17 @@
     <Content Include="tests\testPsd\offset.psd" />
     <Content Include="tests\testPsd\PngFile.psd" />
     <Content Include="tests\testPsd\SimpleMultiLayer.psd" />
-    <Content Include="__pycache__\Psd2Png.cpython-38.pyc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="env\">
+      <Id>env</Id>
+      <Version>3.8</Version>
+      <Description>env (Python 3.8 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
