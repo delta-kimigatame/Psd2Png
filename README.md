@@ -10,6 +10,8 @@ psd-tools 1.9.15
 バイナリはwindows版のみです。  
 開発環境は日本語windows10 64bitですが、おそらくOS固有の動作は使用していないため、おそらく他の環境でも動作します(未検証)
 
+サンプルにあるunitypackageはwindows版 unity2018.4.20f1で動作確認しています。
+
 ## 使い方
 psd2png.exeに任意のpsdファイルをD&Dしてください。
 
