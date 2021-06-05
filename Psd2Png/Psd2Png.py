@@ -96,7 +96,7 @@ class Psd2Png:
         if len(self.__layers) == 0 and len(self.__outputPaths) != 1:
             self.SetOutputPaths()
             self.__outputPaths.append(os.path.join(self.__outputDir,os.path.split(self.__outputDir)[1]))
-        elif len(self.__layers) != len(self.__outputPaths):
+        elif len(self.__layers) != 0 and len(self.__layers) != len(self.__outputPaths):
             self.__logger.info("レイヤー数と出力リストが一致しないため再取得します。")
             self.__outputPaths=[]
             self.SetOutputPaths()
@@ -273,6 +273,12 @@ PSD_PATH:
         for temp in tempList:
             argv.remove(temp)
             
+
+    outputPaths=[]
+    for path in argv[2:]:
+        temp=path.replace("\r","").replace("\n","").replace("/","\\").split("\\")
+        outputPaths.append(os.path.abspath(os.path.join(*temp)))
+
     logger.debug("ファイルパス確認")
     if(len(argv) <= 1):
         if alert:
@@ -283,7 +289,7 @@ PSD_PATH:
         P2P = Psd2Png(psdPath,logger=logger,outputDir=outdir)
         P2P.updateAlert = alert
         P2P.forceOveride = force
-        P2P.outputPaths = argv[2:]
+        P2P.outputPaths = outputPaths
         if outlist:
             P2P.SetOutputPaths()
             for output in P2P.outputPaths:

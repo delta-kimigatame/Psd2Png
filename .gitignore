@@ -345,3 +345,5 @@ healthchecksdb
 /Psd2Png/outtest
 /Psd2Png/env1
 /Psd2Png/tests/testPsd/SimpleMultiLayer
+/Psd2Png/VSworkspace/Psd2Png/Psd2Png/tests/testPsd/Group/BadGroupName
+/Psd2Png/VSworkspace/Psd2Png/Psd2Png/tests/testPsd/Group

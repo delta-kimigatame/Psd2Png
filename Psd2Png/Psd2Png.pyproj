@@ -13,7 +13,7 @@
     <RootNamespace>Psd2Png</RootNamespace>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\LayernameIsNone.psd</CommandLineArguments>
+    <CommandLineArguments>G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\Group.psd --force --noalert G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\Group\layer0\NoneGroupName1 G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\Group\BadGroupName\badlayer2 G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\Group\日本語グループ\日本語レイヤー3 G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\Group\NoGroup G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\Group\SimpleGroup\Layer1 G:\VSworkspace\Psd2Png\Psd2Png\tests\testPsd\Group\SimpleGroup\NestedGroup\NestedLayer</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <TestFramework>unittest</TestFramework>
     <UnitTestPattern>test*.py</UnitTestPattern>
