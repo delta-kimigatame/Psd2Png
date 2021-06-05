@@ -98,6 +98,7 @@ class Psd2Png:
             self.__outputPaths.append(os.path.join(self.__outputDir,os.path.split(self.__outputDir)[1]))
         elif len(self.__layers) != len(self.__outputPaths):
             self.__logger.info("レイヤー数と出力リストが一致しないため再取得します。")
+            self.__outputPaths=[]
             self.SetOutputPaths()
 
         self.__MakeOutputDir(self.__outputDir)
